@@ -1,0 +1,28 @@
+{
+  "name": "fruitware/prostor-sms-php-sdk",
+  "type": "library",
+  "description": "",
+  "keywords": ["sms", "rest", "api"],
+  "homepage": "https://github.com/Fruitware/prostor-sms-php-sdk",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Coroliov Oleg",
+      "email": "ruscon@gmail.com",
+      "homepage": "https://github.com/ruscon"
+    }
+  ],
+  "require": {
+    "php": ">=5.4.0",
+    "ext-mbstring": "*",
+    "guzzlehttp/guzzle": "~5.0",
+    "guzzlehttp/guzzle-services": "~0.5"
+  },
+  "suggest": {
+    "guzzlehttp/log-subscriber": "~1.0",
+    "monolog/monolog": "~1.14"
+  },
+  "autoload": {
+    "psr-4": { "Fruitware\\ProstorSms\\": "src/" }
+  }
+}
