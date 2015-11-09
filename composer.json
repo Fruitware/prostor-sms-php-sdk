@@ -14,7 +14,6 @@
   ],
   "require": {
     "php": ">=5.4.0",
-    "ext-mbstring": "*",
     "guzzlehttp/guzzle": "~5.0",
     "guzzlehttp/guzzle-services": "~0.5"
   },

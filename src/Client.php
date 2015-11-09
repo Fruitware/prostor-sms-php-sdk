@@ -3,6 +3,7 @@
 namespace Fruitware\ProstorSms;
 
 use Fruitware\ProstorSms\Exception\BadResponseStatusException;
+use Fruitware\ProstorSms\Exception\BadSmsStatusException;
 use Fruitware\ProstorSms\Model\Balance;
 use Fruitware\ProstorSms\Model\SmsInterface;
 use GuzzleHttp\ClientInterface;
@@ -60,20 +61,35 @@ class Client extends GuzzleClient
 	}
 
 	/**
+	 * @param SmsInterface $sms
+	 *
+	 * @throws BadSmsStatusException
+	 * @return SmsInterface with defined status and code
+	 */
+	public function send(SmsInterface $sms)
+	{
+		$smsCollection = $this->sendQueue([$sms], $sms->getScheduledAt());
+		$sms = $smsCollection[0];
+		unset($smsCollection);
+
+		if ($sms->getStatus() !== $sms::STATUS_ACCEPTED) {
+			throw new BadSmsStatusException($sms->getStatus());
+		}
+
+		return $sms;
+	}
+
+	/**
 	 * Передача сообщения
 	 *
-	 * @param SmsInterface|SmsInterface[] $smsCollection   Массив sms объектов
-	 * @param string                      $statusQueueName Название очереди статусов отправленных сообщений
-	 * @param \DateTime                   $scheduledAt    Дата для отложенной отправки сообщения
+	 * @param SmsInterface[] $smsCollection   Массив sms объектов
+	 * @param \DateTime|null $scheduledAt     Дата для отложенной отправки сообщения
+	 * @param string         $statusQueueName Название очереди статусов отправленных сообщений
 	 *
 	 * @return SmsInterface[] with defined status and code
 	 */
-	public function send($smsCollection, $statusQueueName = 'default', \DateTime $scheduledAt = null)
+	public function sendQueue(array $smsCollection, \DateTime $scheduledAt = null, $statusQueueName = 'default')
 	{
-		if ($smsCollection instanceof SmsInterface) {
-			$smsCollection = [$smsCollection];
-		}
-
 		$messages = [];
 		foreach ($smsCollection as $sms) {
 			$sms
@@ -82,36 +98,33 @@ class Client extends GuzzleClient
 			;
 
 			$messages[] = [
-				'clientId'        => $sms->getId(),
-				'phone'           => (string)$sms->getPhone(),
-				'text'            => $sms->getText(),
-				'sender'          => (string)$sms->getSender(),
+				'clientId' => $sms->getId(),
+				'phone'    => preg_replace('/\D/', '', $sms->getPhone()),
+				'text'     => $sms->getText(),
+				'sender'   => (string)$sms->getSender(),
 			];
 		}
 
 		$args = [
 			'statusQueueName' => $statusQueueName,
-			'scheduleTime'    => $scheduledAt ? $scheduledAt->format('Y-m-d\TH:i:s\Z') : '', //2015-11-09T14:30:01Z
+			'scheduleTime'    => $scheduledAt ? $scheduledAt->format('Y-m-d\TH:i:s\Z') : '',
 			'messages'        => $messages,
 		];
 
 		$response = parent::send($args);
 
 		foreach ($response['messages'] as $smsStatuses) {
-			if (empty($smsStatuses['clientId'])) {
-				// todo log this
-				continue;
-			}
-
 			foreach ($smsCollection as $sms) {
 				if ($sms->getId() != $smsStatuses['clientId']) {
 					continue;
 				}
 
-				$sms
-					->setStatus(str_ireplace(' ', '_', $smsStatuses['status']))
-					->setInternalId((int)@$smsStatuses['smscId'])
-				;
+				$status = strtolower(str_ireplace(' ', '_', $smsStatuses['status']));
+				$sms->setStatus($status);
+
+				if (isset($smsStatuses['smscId'])) {
+					$sms->setInternalId($smsStatuses['smscId']);
+				}
 			}
 		}
 

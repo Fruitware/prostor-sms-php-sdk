@@ -10,7 +10,8 @@ class Description extends GuzzleDescription
 	 * @param array $options Custom options to apply to the description
 	 *     - formatter: Can provide a custom SchemaFormatter class
 	 */
-	public function __construct(array $options = []) {
+	public function __construct(array $options = [])
+	{
 		parent::__construct([
 			'name'       => 'prostor-sms.ru API',
             'baseUrl' => 'http://api.prostor-sms.ru',

@@ -5,11 +5,6 @@ namespace Fruitware\ProstorSms\Exception;
 class BadResponseStatusException extends BaseResponseException
 {
     /**
-     * @var string
-     */
-    protected $status;
-
-    /**
      * @param string     $status
      * @param string     $message
      * @param int        $code

@@ -2,22 +2,20 @@
 
 namespace Example;
 
-require_once(__DIR__.'/vendor/autoload.php');
+require 'vendor/autoload.php';
 
 use Fruitware\ProstorSms\Client;
+use Fruitware\ProstorSms\Exception\BadSmsStatusException;
 use Fruitware\ProstorSms\Model\Sms;
 use GuzzleHttp\Client as GuzzleClient;
 
 //set basic access authentication
 $options = [
     'defaults' => [
-        'auth'    => ['user', 'password'],
+        'auth' => ['user', 'password'],
     ],
 ];
-
-// Init GuzzleClient
-$guzzleClient = new GuzzleClient($options);
-$smsGate = new Client($guzzleClient);
+$smsGate = new Client(new GuzzleClient($options));
 
 var_dump('version', $smsGate->version());
 
@@ -32,5 +30,11 @@ $sms
     ->setSender('Test sender')
 ;
 
-var_dump('send sms', $smsGate->send($sms));
-var_dump('balance', $smsGate->balance());
+try {
+    $smsGate->send($sms);
+}
+catch (BadSmsStatusException $ex) {
+    var_dump($ex);
+}
+
+var_dump('sms', $sms);

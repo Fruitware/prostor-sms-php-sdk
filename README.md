@@ -1,10 +1,9 @@
-# prostor-sms-php-sdk
+Имплементация api для iqsms.ru
+=======================
 
-Имплементация rest api для prostor-sms.ru
-
-Ссылки на внешнюю документацию: 
-http://prostor-sms.ru/smsapi/api_json.pdf
-http://iqsms.ru/api/api_rest/
+## Ссылки на внешнюю документацию: 
+- [iqsms.ru](http://iqsms.ru/api/api_rest/)
+- [prostor-sms.ru](http://prostor-sms.ru/smsapi/api_json.pdf)
 
 ## Установка
 
@@ -15,17 +14,8 @@ composer require fruitware/prostor-sms-php-sdk
 ## Инициализация
 
 ```php
-namespace MyProject;
-
-require_once(__DIR__ . '/vendor/autoload.php');
-
 use Fruitware\ProstorSms\Client;
-use Fruitware\ProstorSms\Description;
 use GuzzleHttp\Client as GuzzleClient;
-use GuzzleHttp\Subscriber\Log\Formatter;
-use GuzzleHttp\Subscriber\Log\LogSubscriber;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
 
 //set basic access authentication
 $options = [
@@ -34,11 +24,22 @@ $options = [
 	],
 ];
 
-// Инициализация клиена
-$guzzleClient = new GuzzleClient($options);
-$smsGate = new Client($guzzleClient);
+$smsGate = new Client(new GuzzleClient($options));
+```
 
-// Если вы хотите, то можете подключить логирование запросов (monolog/monolog required)
+## Включение логов (необязательно)
+
+### Требуются зависимости
+```bash
+composer require guzzlehttp/log-subscriber monolog/monolog
+```    
+
+```php
+use GuzzleHttp\Subscriber\Log\Formatter;
+use GuzzleHttp\Subscriber\Log\LogSubscriber;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+
 $log = new Logger('maib_guzzle_request');
 $log->pushHandler(new StreamHandler(__DIR__.'/logs/prostor_sms_guzzle_request.log', Logger::DEBUG));
 $subscriber = new LogSubscriber($log, Formatter::SHORT);
@@ -47,25 +48,21 @@ $smsGate->getHttpClient()->getEmitter()->attach($subscriber);
 
 ## Примеры использования
 
-### Проверить версии
-
-```php
-$version = $smsGate->balance();
-var_dump('version', $version);
-```
-
-### Проверить баланса
+### Проверить баланс
 
 ```php
 $balance = $smsGate->balance();
 var_dump('balance', $balance);
 ```
 
-### Отослать sms
+## Отослать sms
 
-#### Простой вариант
+### Простой вариант
 
 ```php
+use Fruitware\ProstorSms\Model\Sms;
+use Fruitware\ProstorSms\Exception\BadSmsStatusException;
+
 $sms = new Sms();
 $sms
 	->setId(unique()) // id sms в вашей системе
@@ -73,10 +70,17 @@ $sms
     ->setText('тест sms')
 ;
 
-var_dump('sms', $smsGate->send($sms));
+try {
+    $smsGate->send($sms);
+}
+catch (BadSmsStatusException $ex) {
+    // что-то сделать с ошибкой
+}
+
+var_dump('sms', $sms);
 ```
 
-#### Максимальный вариант
+### Отсылка нескольких
 
 ```php
 $sms = new Sms();
@@ -87,13 +91,16 @@ $sms
     ->sender('TEST') // Подпись отправителя (например TEST)
 ;
 
-/** 
-* Название очереди статусов отправленных сообщений, в случае, если вы хотите использовать очередь статусов отправленных сообщений. 
-* От 3 до 16 символов, буквы и цифры (например myQueue1)
-*/
+// Название очереди статусов отправленных сообщений
 $queueName = 'myQueue1';
 // Дата для отложенной отправки сообщения
-$scheduleTime = (new \DateTime())->modify('+7 days');
+$scheduleTime = (new \DateTime())->modify('+1 day');
 
-var_dump('sms', $smsGate->send([$sms, $sms], $queueName, $scheduleTime));
+$smsCollection = $smsGate->sendQueue([$sms, $sms], $queueName, $scheduleTime);
+
+foreach ($smsCollection as $sms) {
+    if ($sms->getStatus() !== $sms::STATUS_ACCEPTED) {
+        // что-то сделать с ошибкой
+    }
+}
 ```

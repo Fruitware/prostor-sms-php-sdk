@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Fruitware\ProstorSms\Model;
-
 
 interface SmsInterface
 {
@@ -15,44 +13,37 @@ interface SmsInterface
      * Статусы добавления в очередь
      */
     // Сообщение принято сервисом
-    const STATUS_ACCEPTED                     = 'accepted';
+    const STATUS_ACCEPTED = 'accepted';
     // Неверно задан номер тефона (формат 71234567890)
-    const STATUS_INVALID_MOBILE_PHONE         = 'invalid_mobile_phone';
+    const STATUS_INVALID_MOBILE_PHONE = 'invalid_mobile_phone';
     // Отсутствует текст
-    const STATUS_TEXT_IS_EMPTY                = 'text_is_empty';
+    const STATUS_TEXT_IS_EMPTY = 'text_is_empty';
     // Неверная (незарегистрированная) подпись отправителя
-    const STATUS_SENDER_ADDRESS_INVALID       = 'sender_address_invalid';
+    const STATUS_SENDER_ADDRESS_INVALID = 'sender_address_invalid';
     // Неправильный формат wap-push ссылки
-    const STATUS_WAPURL_INVALID               = 'wapurl_invalid';
+    const STATUS_WAPURL_INVALID = 'wapurl_invalid';
     // Неверный формат даты отложенной отправки сообщения
     const STATUS_INVALID_SCHEDULE_TIME_FORMAT = 'invalid_schedule_time_format';
     // Неверное название очереди статусов сообщений
-    const STATUS_INVALID_STATUS_QUEUE_NAME    = 'invalid_status_queue_name';
+    const STATUS_INVALID_STATUS_QUEUE_NAME = 'invalid_status_queue_name';
     // Баланс пуст (проверьте баланс)
-    const STATUS_NOT_ENOUGH_CREDITS           = 'not_enough_credits';
+    const STATUS_NOT_ENOUGH_CREDITS = 'not_enough_credits';
 
     /**
      * Статусы проверки состояния отправленного сообщения
      */
     // Сообщение находится в очереди
-    const STATUS_QUEUED         = 'queued';
+    const STATUS_QUEUED = 'queued';
     // Сообщение доставлено
-    const STATUS_DELIVERED      = 'delivered';
+    const STATUS_DELIVERED = 'delivered';
     // Ошибка доставки SMS (абонент в течение времени доставки находился вне зоны действия сети или номер абонента заблокирован)
     const STATUS_DELIVERY_ERROR = 'delivery_error';
     // Сообщение доставлено в SMSC
-    const STATUS_SUBMITTED      = 'smsc_submit';
+    const STATUS_SUBMITTED = 'smsc_submit';
     // Сообщение отвергнуто SMSC (номер заблокирован или не существует)
-    const STATUS_REJECTED       = 'smsc_reject';
+    const STATUS_REJECTED = 'smsc_reject';
     // Неверный идентификатор сообщения
-    const STATUS_INCORRECT_ID   = 'incorrect_id';
-
-    /**
-     * @param int $id
-     *
-     * @return $this
-     */
-    public function setId($id);
+    const STATUS_INCORRECT_ID = 'incorrect_id';
 
     /**
      * @return int
