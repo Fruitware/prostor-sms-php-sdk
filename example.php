@@ -3,9 +3,6 @@
 namespace Example;
 
 require_once(__DIR__.'/vendor/autoload.php');
-require_once __DIR__.'/src/SmsClient.php'; // only here
-require_once __DIR__.'/src/Description.php'; // only here
-require_once __DIR__.'/src/Exception/BadResponseException.php'; // only here
 
 use Fruitware\ProstorSms\Client;
 use Fruitware\ProstorSms\Model\Sms;

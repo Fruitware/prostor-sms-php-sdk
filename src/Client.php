@@ -4,7 +4,6 @@ namespace Fruitware\ProstorSms;
 
 use Fruitware\ProstorSms\Exception\BadResponseStatusException;
 use Fruitware\ProstorSms\Model\Balance;
-use Fruitware\ProstorSms\Model\Sms;
 use Fruitware\ProstorSms\Model\SmsInterface;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Command\Guzzle\DescriptionInterface;

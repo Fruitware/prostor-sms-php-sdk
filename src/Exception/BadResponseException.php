@@ -11,6 +11,7 @@ class BadResponseStatusException extends BaseResponseException
 
     /**
      * @param string     $status
+     * @param string     $message
      * @param int        $code
      * @param \Exception $previous
      */

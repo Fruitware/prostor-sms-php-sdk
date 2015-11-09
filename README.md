@@ -29,7 +29,6 @@ use Monolog\Logger;
 
 //set basic access authentication
 $options = [
-	'base_url' => 'http://api.prostor-sms.ru/messages/v2/'
 	'defaults' => [
 		'auth'    => ['username', 'password'],
 	],
