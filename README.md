@@ -69,24 +69,32 @@ var_dump('balance', $balance);
 ```php
 $sms = new Sms();
 $sms
+	->setId(unique()) // id sms в вашей системе
     ->setPhone('+71234567890')
     ->setText('тест sms')
 ;
 
-var_dump('balance', $smsGate->send($sms));
+var_dump('sms', $smsGate->send($sms));
 ```
 
 #### Максимальный вариант
 
 ```php
-$sender = 'TEST'; // Подпись отправителя (например TEST)
-$scheduleTime = (new \DateTime())->modify('+7 days'); Дата для отложенной отправки сообщения
+$sms = new Sms();
+$sms
+	->setId(unique()) // id sms в вашей системе
+    ->setPhone('+71234567890')
+    ->setText('тест sms')
+    ->sender('TEST') // Подпись отправителя (например TEST)
+;
+
 /** 
 * Название очереди статусов отправленных сообщений, в случае, если вы хотите использовать очередь статусов отправленных сообщений. 
 * От 3 до 16 символов, буквы и цифры (например myQueue1)
 */
 $queueName = 'myQueue1';
+// Дата для отложенной отправки сообщения
+$scheduleTime = (new \DateTime())->modify('+7 days');
 
-$sms = $smsGate->send($phone, $text, $sender, scheduledAt, $queueName);
-var_dump('sms', $sms);
+var_dump('sms', $smsGate->send([$sms, $sms], $queueName, $scheduleTime));
 ```
