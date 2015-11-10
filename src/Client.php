@@ -96,12 +96,8 @@ class Client extends GuzzleClient
 		}
 
 		$messages = [];
+		$lastSmsIndex = count($smsCollection) - 1;
 		foreach ($smsCollection as $index => $sms) {
-			if ($index > 0 && $index % 200 == 0) {
-				$this->sendBulk($messages, $smsCollection, $scheduledAt, $statusQueueName);
-				$messages = [];
-			}
-
 			$sms
 				->setQueueName($statusQueueName)
 				->setScheduledAt($scheduledAt)
@@ -113,6 +109,11 @@ class Client extends GuzzleClient
 				'text'     => $sms->getText(),
 				'sender'   => (string)$sms->getSender(),
 			];
+
+			if (($index > 0 && $index % 200 == 199) || $index == $lastSmsIndex) {
+				$this->sendBulk($messages, $smsCollection, $scheduledAt, $statusQueueName);
+				$messages = [];
+			}
 		}
 
 		return $smsCollection;
