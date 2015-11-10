@@ -24,8 +24,8 @@ class Client extends GuzzleClient
 		parent::__construct($client, $description, $config);
 
 		$this->getHttpClient()->setDefaultOption('headers', [
-			'Content-Type' => 'application/json; charset=utf-8'
-		]);
+				'Content-Type' => 'application/json; charset=utf-8'
+			]);
 	}
 
 	/**
@@ -68,7 +68,8 @@ class Client extends GuzzleClient
 	 */
 	public function send(SmsInterface $sms)
 	{
-		$smsCollection = $this->sendQueue([$sms], $sms->getScheduledAt());
+		$smsCollection = [$sms];
+		$smsCollection = $this->sendQueue($smsCollection, $sms->getScheduledAt());
 		$sms = $smsCollection[0];
 		unset($smsCollection);
 
@@ -88,10 +89,19 @@ class Client extends GuzzleClient
 	 *
 	 * @return SmsInterface[] with defined status and code
 	 */
-	public function sendQueue(array $smsCollection, \DateTime $scheduledAt = null, $statusQueueName = 'default')
+	public function sendQueue(array &$smsCollection, \DateTime $scheduledAt = null, $statusQueueName = 'default')
 	{
+		if (!$scheduledAt instanceof \DateTime) {
+			$scheduledAt = new \DateTime();
+		}
+
 		$messages = [];
-		foreach ($smsCollection as $sms) {
+		foreach ($smsCollection as $index => $sms) {
+			if ($index > 0 && $index % 200 == 0) {
+				$this->sendBulk($messages, $smsCollection, $scheduledAt, $statusQueueName);
+				$messages = [];
+			}
+
 			$sms
 				->setQueueName($statusQueueName)
 				->setScheduledAt($scheduledAt)
@@ -105,9 +115,24 @@ class Client extends GuzzleClient
 			];
 		}
 
+		return $smsCollection;
+	}
+
+	/**
+	 * Передача сообщения по 200 шт
+	 *
+	 * @param array          $messages
+	 * @param SmsInterface[] $smsCollection   Массив sms объектов
+	 * @param \DateTime|null $scheduledAt     Дата для отложенной отправки сообщения
+	 * @param string         $statusQueueName Название очереди статусов отправленных сообщений
+	 *
+	 * @return SmsInterface[] with defined status and code
+	 */
+	private function sendBulk(array $messages, array &$smsCollection, \DateTime $scheduledAt = null, $statusQueueName = 'default')
+	{
 		$args = [
 			'statusQueueName' => $statusQueueName,
-			'scheduleTime'    => $scheduledAt ? $scheduledAt->format('Y-m-d\TH:i:s\Z') : '',
+			'scheduleTime'    => $scheduledAt->format('Y-m-d\TH:i:s\Z'),
 			'messages'        => $messages,
 		];
 
@@ -127,8 +152,6 @@ class Client extends GuzzleClient
 				}
 			}
 		}
-
-		return $smsCollection;
 	}
 
 	/**
