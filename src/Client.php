@@ -94,6 +94,7 @@ class Client extends GuzzleClient
 		if (!$scheduledAt instanceof \DateTime) {
 			$scheduledAt = new \DateTime();
 		}
+		$scheduledAt->setTimezone(new \DateTimeZone('UTC'));
 
 		$messages = [];
 		$lastSmsIndex = count($smsCollection) - 1;
@@ -131,6 +132,11 @@ class Client extends GuzzleClient
 	 */
 	private function sendBulk(array $messages, array &$smsCollection, \DateTime $scheduledAt = null, $statusQueueName = 'default')
 	{
+		if (!$scheduledAt instanceof \DateTime) {
+			$scheduledAt = new \DateTime();
+		}
+		$scheduledAt->setTimezone(new \DateTimeZone('UTC'));
+
 		$args = [
 			'statusQueueName' => $statusQueueName,
 			'scheduleTime'    => $scheduledAt->format('Y-m-d\TH:i:s\Z'),
