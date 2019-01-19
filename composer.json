@@ -14,12 +14,12 @@
   ],
   "require": {
     "php": ">=5.4.0",
-    "guzzlehttp/guzzle": "~5.0",
-    "guzzlehttp/guzzle-services": "~0.5"
+    "guzzlehttp/guzzle": ">=5.0",
+    "guzzlehttp/guzzle-services": ">=0.5"
   },
   "suggest": {
-    "guzzlehttp/log-subscriber": "~1.0",
-    "monolog/monolog": "~1.14"
+    "guzzlehttp/log-subscriber": ">=1.0",
+    "monolog/monolog": ">=1.14"
   },
   "autoload": {
     "psr-4": { "Fruitware\\ProstorSms\\": "src/" }
