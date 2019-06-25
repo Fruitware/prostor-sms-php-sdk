@@ -19,19 +19,19 @@ class Description extends GuzzleDescription
 			'operations' => [
 				'version'   => [
 					'httpMethod'    => 'GET',
-					'uri'           => '/messages/v2/version/',
+					'uri'           => '/messages/v2/version.json/',
 					'description'   => 'Проверка активной версии API. При успешной авторизации, в ответ сервис должен вернуть plain/text ответ вида: "2", где выводится номер активной версии API',
 					'responseModel' => 'getResponse',
 				],
 				'balance'   => [
 					'httpMethod'    => 'GET',
-					'uri'           => '/messages/v2/balance/',
+					'uri'           => '/messages/v2/balance.json/',
 					'description'   => 'Проверка состояния счета. При успешной авторизации, в ответ сервис должен вернуть plain/text ответ вида: "RUB;540.15;0.0\nSMS;589;100", где в каждой строке 1 значение – тип баланса, 2 значение – баланс, 3 значение – кредит (возможность использовать сервис при отрицательномбалансе)',
 					'responseModel' => 'getResponse',
 				],
 				'send'   => [
 					'httpMethod'    => 'GET',
-					'uri'           => '/messages/v2/send/',
+					'uri'           => '/messages/v2/send.json/',
 					'description'   => 'Передача сообщения. При успешной авторизации, в ответ сервис должен вернуть plain/text ответ вида accepted;A132571BC',
 					'responseModel' => 'getResponse',
 					'parameters'    => [
